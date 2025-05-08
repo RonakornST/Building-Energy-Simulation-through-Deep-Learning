@@ -17,9 +17,9 @@ ENV EPLUS_PATH=/usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION
 
 # Downloading from Github
 # e.g. https://github.com/NREL/EnergyPlus/releases/download/v8.3.0/EnergyPlus-8.3.0-6d97d074ea-Linux-x86_64.sh
-ENV ENERGYPLUS_DOWNLOAD_BASE_URL https://github.com/NREL/EnergyPlus/releases/download/$ENERGYPLUS_TAG
-ENV ENERGYPLUS_DOWNLOAD_FILENAME EnergyPlus-$ENERGYPLUS_VERSION-$ENERGYPLUS_SHA-Linux-x86_64.sh
-ENV ENERGYPLUS_DOWNLOAD_URL $ENERGYPLUS_DOWNLOAD_BASE_URL/$ENERGYPLUS_DOWNLOAD_FILENAME
+ENV ENERGYPLUS_DOWNLOAD_BASE_URL=https://github.com/NREL/EnergyPlus/releases/download/$ENERGYPLUS_TAG
+ENV ENERGYPLUS_DOWNLOAD_FILENAME=EnergyPlus-$ENERGYPLUS_VERSION-$ENERGYPLUS_SHA-Linux-x86_64.sh
+ENV ENERGYPLUS_DOWNLOAD_URL=$ENERGYPLUS_DOWNLOAD_BASE_URL/$ENERGYPLUS_DOWNLOAD_FILENAME
 
 # Collapse the update of packages, download and installation into one command
 # to make the container smaller & remove a bunch of the auxiliary apps/files
@@ -39,7 +39,22 @@ RUN apt-get update \
 RUN cd /usr/local/bin find -L . -type l -delete
 
 # Install Python
-RUN apt-get update && echo "Y\r" | apt-get install python3.6 && echo "Y\r" | apt-get install python3-pip
+# RUN apt-get update && echo "Y\r" | apt-get install python3.6 && echo "Y\r" | apt-get install python3-pip
+#######################  edit ##############################
+# Update package list
+RUN apt-get update && apt-get install -y \
+    python3.7 \
+    python3.7-distutils \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set python3.7 as default python
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 1
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1
+
+# Ensure pip is updated
+RUN python3 -m pip install --upgrade pip
+#######################  edit ##############################
 
 # Install OpenJDK-8
 RUN apt-get update && echo "Y\r" | apt-get install default-jre openjdk-8-jdk
