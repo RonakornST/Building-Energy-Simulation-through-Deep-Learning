@@ -19,6 +19,7 @@ from ..utils.common import get_current_time_info, parse_variables, create_variab
 from ..simulators import EnergyPlus
 from ..utils.rewards import SimpleReward
 
+from gym.utils import seeding
 
 class EplusEnv(gym.Env):
     """
@@ -324,3 +325,9 @@ class EplusEnv(gym.Env):
     def close(self):
         """End simulation."""
         self.simulator.end_env()
+        
+    def seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        self.action_space.seed(seed)
+        self.observation_space.seed(seed)
+        return [seed]
